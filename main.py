@@ -53,14 +53,10 @@ class SongBarGui(QMainWindow):
         stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} status")
         output = stream.read()
         status = self.parse_status(output)
-        if status.power:
-            self.power = ON
-            self.volume = status.volume
-            self.change_volume(status.volume)
-        else:
-            self.power = OFF
-            self.volume = status.volume
-            self.change_volume(status.volume)
+
+        self.power = ON if status.power else OFF
+        self.volume = status.volume
+        self.change_volume(status.volume)
 
         self.statusLabel.setText(self.power)
 
