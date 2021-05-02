@@ -3,6 +3,7 @@ import os
 from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QMainWindow, QSlider
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
+from PyQt5 import uic
 
 SOUNDBAR_ENDPOINT = os.getenv('SOUNDBAR_ENDPOINT')
 STATUS_POLL_INTERVAL = 60000
@@ -22,26 +23,12 @@ class SoundBarStatus():
 class SongBarGui(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
+        uic.loadUi("SongPalLayout.ui", self)
 
-        self.statusLabel = QLabel(self)
-        self.statusLabel.move(110, 125)
+        self.powerButton.clicked.connect(self.power_button_clicked)
+        self.volumeDownButton.clicked.connect(lambda: self.step_volume(-1))
+        self.volumeUpButton.clicked.connect(lambda: self.step_volume(+1))
 
-        self.button_on = QPushButton(self)
-        self.button_on.setText(ON)
-        self.button_on.move(64, 64)
-        self.button_on.clicked.connect(self.poweron_button_clicked)
-
-        self.button_off = QPushButton(self)
-        self.button_off.setText(OFF)
-        self.button_off.move(64, 94)
-        self.button_off.clicked.connect(self.poweroff_button_clicked)
-
-        self.volumeSlider = QSlider(Qt.Horizontal, self)
-        self.volumeSlider.setGeometry(30, 120, 100, 30)
-        self.volumeSlider.valueChanged[int].connect(self.change_volume)
-
-        self.setGeometry(50, 50, 320, 200)
-        self.setWindowTitle(APP_NAME)
         self.get_status()
 
         self.statusTimer = QTimer()
@@ -57,26 +44,30 @@ class SongBarGui(QMainWindow):
 
         self.power = ON if status.power else OFF
         self.volume = status.volume
-        self.change_volume(status.volume)
+        self.update_volume_slider(self.volume)
 
-        self.statusLabel.setText(self.power)
+        self.statusTextLabel.setText(self.power)
 
-    def poweron_button_clicked(self):
-        stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power on")
+    def power_button_clicked(self):
+        if self.power == ON:
+            stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power off")
+            self.statusTextLabel.setText(OFF)
+        else:
+            stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power on")
+            self.statusTextLabel.setText(ON)
+
         output = stream.read()
-        if output:
-            self.statusLabel.setText(ON)
+        print(output)
 
-    def poweroff_button_clicked(self):
-        stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power off")
+    def step_volume(self, step):
+        newVolume = self.volume + step
+        self.update_volume_slider(newVolume)
+        self.volume = newVolume
+        stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} volume {newVolume}")
         output = stream.read()
-        if output:
-            self.statusLabel.setText(OFF)
 
-    def change_volume(self, val=0):
-        self.volumeSlider.setValue(int(val))
-        stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} volume {val}")
-        output = stream.read()
+    def update_volume_slider(self, val):
+       self.volumeSlider.setValue(int(val))
 
     def parse_status(self, status):
         print(status)
@@ -85,10 +76,10 @@ class SongBarGui(QMainWindow):
 
         if lines and lines[0] == POWER_ON:
             sb_status.power = True
-            sb_status.volume = lines[1].split(" ")[1].split("/")[0]
+            sb_status.volume = int(lines[1].split(" ")[1].split("/")[0])
         else:
             sb_status.power = False
-            sb_status.volume = lines[1].split(" ")[1].split("/")[0]
+            sb_status.volume = int(lines[1].split(" ")[1].split("/")[0])
 
         return sb_status
 
