@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QMainWindow, QSlider
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5 import uic
@@ -74,12 +74,8 @@ class SongBarGui(QMainWindow):
         lines = status.split("\n")
         sb_status = SoundBarStatus()
 
-        if lines and lines[0] == POWER_ON:
-            sb_status.power = True
-            sb_status.volume = int(lines[1].split(" ")[1].split("/")[0])
-        else:
-            sb_status.power = False
-            sb_status.volume = int(lines[1].split(" ")[1].split("/")[0])
+        sb_status.power = True if lines and lines[0] == POWER_ON else False
+        sb_status.volume = int(lines[1].split(" ")[1].split("/")[0])
 
         return sb_status
 
