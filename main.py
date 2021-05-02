@@ -20,7 +20,7 @@ class SoundBarStatus():
         self.power = OFF
         self.volume = 0
 
-class SongBarGui(QMainWindow):
+class SongPalGui(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         uic.loadUi("SongPalLayout.ui", self)
@@ -81,5 +81,5 @@ class SongBarGui(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    SongBarGui = SongBarGui()
+    SongPalGui = SongPalGui()
     sys.exit(app.exec_())
