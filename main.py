@@ -2,9 +2,10 @@ import sys
 import os
 from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QMainWindow, QSlider
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 
 SOUNDBAR_ENDPOINT = os.getenv('SOUNDBAR_ENDPOINT')
+STATUS_POLL_INTERVAL = 60000
 SONGPAL = 'songpal'
 POWER_ON = 'Power on'
 APP_NAME = 'Songpal Remote'
@@ -25,11 +26,6 @@ class SongBarGui(QMainWindow):
         self.statusLabel = QLabel(self)
         self.statusLabel.move(110, 125)
 
-        self.button_status = QPushButton(self)
-        self.button_status.setText(STATUS)
-        self.button_status.move(64, 32)
-        self.button_status.clicked.connect(self.status_button_clicked)
-
         self.button_on = QPushButton(self)
         self.button_on.setText(ON)
         self.button_on.move(64, 64)
@@ -46,10 +42,15 @@ class SongBarGui(QMainWindow):
 
         self.setGeometry(50, 50, 320, 200)
         self.setWindowTitle(APP_NAME)
-        self.status_button_clicked()
+        self.get_status()
+
+        self.statusTimer = QTimer()
+        self.statusTimer.timeout.connect(self.get_status)
+        self.statusTimer.start(STATUS_POLL_INTERVAL)
+
         self.show()
 
-    def status_button_clicked(self):
+    def get_status(self):
         stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} status")
         output = stream.read()
         status = self.parse_status(output)
