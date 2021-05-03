@@ -1,9 +1,12 @@
 import sys
 import os
+from dotenv import load_dotenv
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5 import uic
+
+load_dotenv()
 
 SOUNDBAR_ENDPOINT = os.getenv('SOUNDBAR_ENDPOINT')
 STATUS_POLL_INTERVAL = 60000
