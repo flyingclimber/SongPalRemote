@@ -46,25 +46,22 @@ class SongPalGui(QMainWindow):
         self.volume = status.volume
         self.update_volume_slider(self.volume)
 
-        self.statusbar.addPermanentWidget(QLabel(self.power))
+        self.statusbar.clearMessage()
+        self.statusbar.showMessage(self.power)
 
     def power_button_clicked(self):
         if self.power == ON:
             stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power off")
-            self.statusbar.addPermanentWidget(self.statusTextLabel)
         else:
             stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power on")
-            self.statusbar.addPermanentWidget(self.statusTextLabel)
 
-        output = stream.read()
-        print(output)
+        self.statusbar.showMessage(self.statusTextLabel)
 
     def step_volume(self, step):
         newVolume = self.volume + step
         self.update_volume_slider(newVolume)
         self.volume = newVolume
         stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} volume {newVolume}")
-        output = stream.read()
 
     def update_volume_slider(self, val):
        self.volumeSlider.setValue(int(val))
