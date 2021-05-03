@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, Qt, QTimer
 from PyQt5 import uic
@@ -46,15 +46,15 @@ class SongPalGui(QMainWindow):
         self.volume = status.volume
         self.update_volume_slider(self.volume)
 
-        self.statusTextLabel.setText(self.power)
+        self.statusbar.addPermanentWidget(QLabel(self.power))
 
     def power_button_clicked(self):
         if self.power == ON:
             stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power off")
-            self.statusTextLabel.setText(OFF)
+            self.statusbar.addPermanentWidget(self.statusTextLabel)
         else:
             stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power on")
-            self.statusTextLabel.setText(ON)
+            self.statusbar.addPermanentWidget(self.statusTextLabel)
 
         output = stream.read()
         print(output)
