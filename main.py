@@ -60,7 +60,7 @@ class SongPalGui(QMainWindow):
         else:
             stream = os.popen(f"{SONGPAL} --endpoint {SOUNDBAR_ENDPOINT} power on")
 
-        self.statusbar.showMessage(self.statusTextLabel)
+        self.statusbar.showMessage(self.power)
 
     def step_volume(self, step):
         newVolume = self.volume + step
